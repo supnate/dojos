@@ -55,7 +55,7 @@
 			{% endfor %} 
 		</table>
 	</div>
-	<div class="footer"><hr/>Powered by dojos on NodeJS, Sep, 2011, supnate@gmail.com</div>
+	<div class="footer"><hr/>Powered by dojos on NodeJS, Sep, 2011, <a href="https://github.com/supnate/dojos">github.com/supnate/dojos</a> supnate@gmail.com</div>
 </body>
 </html>
 

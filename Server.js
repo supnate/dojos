@@ -13,7 +13,6 @@ define([
 	function getInternalPage(name){
 		return dojo.baseUrl + '../dojos/pages/'+ name +'.djs';
 	}
-	
 	return declare('dojos.Server', null, {
 		constructor: function(_siteConfig){
 			this.siteConfig = _siteConfig;
@@ -102,7 +101,7 @@ define([
 			res.end();
 		}
 		,mapPath: function(p){
-			var p = (this.siteConfig.root + p).replace('//', '/');
+			var p = (this.siteConfig.root + p).replace(/\\/g, '/').replace('//', '/');
 			return p;
 		}
 	});
