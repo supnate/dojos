@@ -1,13 +1,18 @@
-define({
+module.exports = {
 	sites: [{
-		name: 'weibo'
-		,location: '../weibo'
-		,title: 'Weibo'
+		id: 'mysite'	//id is the package name of the site
+		,location: '../'
+		,name: 'My Site'
+		,port: 1337
+	},{
+		id: 'weibo'
+		,location: 'g:/weibo/'
+		,name: 'Weibo'
 		,port: 1338
 	},{
-		name: 'workspace'
-		,location: '../'
-		,title: 'Workspace'
+		id: 'workspace'
+		,location: 'e:/workspace/'
+		,name: 'Workspace'
 		,port: 1339
 	}]
-});
+};

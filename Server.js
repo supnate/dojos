@@ -1,48 +1,83 @@
 define([
 	'dojo/_base/declare'
+	,'dojo/_base/lang'
 	,'dojo/_base/Url'
+	,'dojo/_base/config'
 	,'./Page'
-	,'./redirect'
+	,'./UrlRewriter'
 	,'./types'
-], function(declare, Url, Page, redirect, TYPES){
+], function(declare, lang, Url, config, Page, urlRewriter, TYPES){
+	// summary:
+	//	Represents a dojos web server. It starts an nodejs http server to handle requests.
+	//	The server can list directories and render dojox/dtl based web page: dojos/Page
+	//	This is usually used in a dojos/Site instance and maybe run in a separate process.
+	
 	var http = require.nodeRequire('http')
 		,fs = require.nodeRequire('fs')
 		,util = require.nodeRequire('util')
 		,path = require.nodeRequire('path');
 	
 	function getInternalPage(name){
-		return dojo.baseUrl + '../dojos/pages/'+ name +'.djs';
+		return path.join(config.baseUrl, '../dojos/pages/' + name + '.djs');
 	}
-	return declare('dojos.Server', null, {
-		constructor: function(_siteConfig){
-			this.siteConfig = _siteConfig;
+	return declare(null, {
+		port: 1337
+		,id: ''
+		,location: ''	//root folder of the server site
+		,started: false
+		,_httpServer: null
+		,constructor: function(args){
+			lang.mixin(this, args || {});
 		}
-		,create: function(){
+		,start: function(){
+			// summary:
+			//	Start the server.
 			var self = this;
-			http.createServer(function (req, res){
-				req.originalUrl = req.url;
-				var url = req.url = new Url(redirect.route(req.url))
-					, absPath = self.mapPath(url.path), page;
-				if(!path.existsSync(absPath)){
-					page = new Page(getInternalPage('404'), null, self.siteConfig.name, req, res);
-					page.render(404, {});
-					return;
+			//TODO: Reuse http server object when restarted
+			this._httpServer = http.createServer(function (req, res){
+				try{
+					req.originalUrl = req.url;
+					var url = req.url = new Url(urlRewriter.rewrite(req.url))
+						, absPath = self.mapPath(url.path), page;
+					if(!path.existsSync(absPath)){
+						page = new Page(getInternalPage('404'), {}, null, req, res);
+						page.render(404, {});
+						return;
+					}
+					if(fs.statSync(absPath).isDirectory()){
+						//List files of a directory
+						self.dir(req, res);
+						return;
+					}
+					var ext = path.extname(absPath).toLowerCase();
+					if(ext == '.djs'){
+						//Process a djs file
+						var page = new Page(absPath, null, self.pageMid(absPath), req, res);
+						self.djs(req, res, page);
+					}else{
+						//Other files
+						self.file(req, res, ext);
+					}
+				}catch(e){
+					console.log('error: ', e);
 				}
-				if(fs.statSync(absPath).isDirectory()){
-					self.dir(req, res);
-					return;
-				}
-				var ext = path.extname(absPath).toLowerCase();
-				if(ext == '.djs'){
-					var page = new Page(absPath, null, self.siteConfig.name, req, res);
-					self.djs(req, res, page);
-				}else{
-					self.file(req, res, ext);
-				}
-			}).listen(this.siteConfig.port||1337);
-			console.log('Server running at port ' + this.siteConfig.port);
+			}).listen(this.port);
+			this.started = true;
+			
+			console.log('Server running at port ' + this.port);
+		}
+		,stop: function(){
+			// summary:
+			//	Stop the server.
+			
+			this.started = false;
+			this._httpServer && this._httpServer.close();
+			console.log('Server stopped at port ' + this.port);
+			
 		}
 		,file: function(req, res, ext){
+			// summary:
+			//	Response file's content with the content-type based on file's extension
 			fs.readFile(this.mapPath(req.url.path),'binary',function(err,file){  
 		        res.writeHead(200,{  
 		            'Content-Type': TYPES[ext] || 'text/plain'
@@ -52,17 +87,19 @@ define([
 		    })  
 		}
 		,dir: function(req, res){
+			// summary:
+			//	Render the folder list.
+			
 			var rp = req.url.path, ap = this.mapPath(rp), self = this;
 			fs.readdir(ap, function(error, files){
-				
 				files = files.map(function(file){
-					var absPath = (ap + '/' + file).replace('//', '/'), s = fs.statSync(absPath);
+					var absPath = path.join(ap, file), s = fs.statSync(absPath);
 					return {
 						name: file + (s.isDirectory()? '/' : '')
 						,path: (rp + '/' + file).replace('//', '/')
 						,type: s.isDirectory() ? 'folder' : (/\./.test(file) ? file.split('.').pop() : '')
-						,size: Math.round(s.size / 1000) + 'KB'
-						,lastModified: s.mtime.getMonth() + '/' + s.mtime.getDate() + '/' + s.mtime.getFullYear() + ' ' + s.mtime.getHours() + ':' + s.mtime.getMinutes()
+						,size: s.isDirectory() ? '0KB' : (Math.round(s.size / 1000) + 'KB')
+						,lastModified: (s.mtime.getMonth() + 1) + '/' + s.mtime.getDate() + '/' + s.mtime.getFullYear() + ' ' + s.mtime.getHours() + ':' + s.mtime.getMinutes()
 					};
 				});
 				files.sort(function(f1, f2){
@@ -70,39 +107,39 @@ define([
 					else if(/\/$/.test(f2.name) && !/\/$/.test(f1.name)){return 1;}
 					else return f1.name > f2.name ? 1 : -1;
 				});
-//				if(rp != '/'){
-//					files.unshift({
-//						name: 'Parent Directory'
-//						,path: rp.replace(/[^\/]+\/?$/, '')
-//						,type: ''
-//						,size: ''
-//						,lastModified: ''
-//					});
-//				}
+
 				var a = '/', tp = rp;
 				rp = '<a href="/">root</a> ' + rp.replace(/[^\/]+/g, function(s){
 					a += (s + '/');
 					return ' <a href="' + a + '">' + s + '</a> ';
 				});
-		        var page = new Page(dojo.baseUrl + '../dojos/pages/folder.djs', {
+		        var page = new Page(getInternalPage('folder'), {
 					path: rp
 					,title: tp
 					,files: files
-				}, self.siteConfig.name, req, res);
+				}, null, req, res);
 				page.render();
 		    });
 		}
-		,_404: function(req, res){
-			this.djs(req, res, new Page(dojo.baseUrl + '../dojos/pages/404.djs', {}, this.siteConfig.name), 404);
-		}
 		,djs: function(req, res, page, resCode){
+			// summary:
+			//	Render a dojos server page.
 			res.writeHead(resCode || 200, {'Content-Type': 'text/html;charset=utf-8'});
 			res.write(page.getContent(), 'utf8');
 			res.end();
 		}
 		,mapPath: function(p){
-			var p = (this.siteConfig.root + p).replace(/\\/g, '/').replace('//', '/');
+			// summary:
+			//	Map the relative file path to the site's root path
+			p = path.join(this.location, p);
 			return p;
+		}
+		,pageMid: function(pageAbsPath){
+			// summary:
+			//	Get the module id of a page's back end module
+			var mid = this.id + '/' + pageAbsPath.substring(this.location.length);
+			mid = mid.replace(/\\/g, '/');
+			return mid;
 		}
 	});
 });

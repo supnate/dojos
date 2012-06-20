@@ -1,9 +1,10 @@
 define([
 	'dojo/_base/declare'
+	,'dojo/_base/lang'
 	,'dojo/_base/Deferred'
 	,'dojox/dtl'
 	,'dojox/dtl/Context'
-], function(declare, Deferred, dtl, DtlContext){
+], function(declare, lang, Deferred, dtl, DtlContext){
 	var fs = require.nodeRequire('fs')
 		,path = require.nodeRequire('path')
 		,util = require.nodeRequire('util');
@@ -11,24 +12,22 @@ define([
 		tpl: null
 		,context: null
 		,pkg: ''
-		,constructor: function(_file, _context, _pkg, req, res){
+		,constructor: function(_file, _context, mid, req, res){
 			this.context = _context;
 			this.request = req;
 			this.response = res;
-			this.pkg = _pkg;
+			this.mid = mid;
 			//load page template file
 			this.tpl = fs.readFileSync(_file, 'utf8');
 			if(!this.tpl)this.tpl = '{{text}}';
 			
+			var self = this;
 			if(!this.context && path.existsSync(_file + '.js')){
-				//load PageContext
-				var baseName = path.basename(_file), self = this;
-				require([this.pkg + '/' + baseName], function(PageContext){
+				require([mid], function(PageContext){
 					var pc = new PageContext(req, res);
 					self.context = pc.getContext();
 				});
 			}
-			
 			if(!this.context){
 				this.context = {text: ''};
 			}
@@ -44,7 +43,7 @@ define([
 		}
 		,render: function(httpStatus, args){
 			var res = this.response;
-			args = dojo.mixin({
+			args = lang.mixin({
 				'Content-Type': 'text/html;charset=utf-8'
 			}, args);
 			res.writeHead(httpStatus || 200, args);

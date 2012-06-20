@@ -1,5 +1,5 @@
 define({
-	route: function(url){
+	rewrite: function(url){
 		return url;
 	}
 });

@@ -1,8 +1,5 @@
-define(['./Server', './config'], function(Server, config){
-	var path = require.nodeRequire('path');
-	config.sites.forEach(function(site){
-		site.root = path.join(global.cwd, site.location);
-		var s = new Server(site);
-		s.create();
+define(['./SiteManager'], function(siteManager){
+	siteManager.getSites().forEach(function(site){
+		siteManager.startSite(site.id);
 	});
 });
