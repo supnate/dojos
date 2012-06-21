@@ -5,7 +5,7 @@ Although Dojo is known as a powerful rich internet application framework running
 
 ## Installation
 Dojos depends on [NodeJS](http://www.nodejs.org) v0.6+ and [Dojo Toolkit](http://www.dojotoolkit.org) v1.7+
-
+NOTE that you need Dojo source code version to run on NodeJS but not compressed version. Because built dojo seems only for browser environment.
 Dojos folder needs to be the sibling of dojo and dojox folder,  resulting in a directory structure like the following:
 
 * `dojo` - Provides the AMD loader
