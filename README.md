@@ -15,7 +15,18 @@ Dojos folder needs to be the sibling of dojo and dojox folder,  resulting in a d
 ## Configuration
 You can specify multi web sites running on the server, each web site is a folder on disk and runs as an AMD package.
 
-To config web sites, open dojos/config.js. You can see a internal applicaiton named 'Dojos Web', which list all files in dojos parent folder and intends to manage web sites using a web UI, it's still in early stage so just for demo purpose, can't provide actual functions. Simlar with the Dojos Admin web site config, you need to specify below parameters for a web site:
+To config web sites, open dojos/config.js. You can see a internal applicaiton named 'Dojos Default', which list all files in dojos parent folder:
+```js
+module.exports = {
+	sites: [{
+		id: 'dojos/default'
+		,location: '../'
+		,name: 'Dojos Default'
+		,port: 1337
+	}]
+};
+```
+ This site alsointends to manage web sites using a web UI, it's still in early stage so just for demo purpose, can't provide actual functions. Simlar with the Dojos Default web site config, you need to specify below parameters for a web site:
 
 * `id`: the identifier of the web site, it is also used as AMD package name. If not provided, dojos will give it a random id at each server starting.
 * `name`: the name of the web site, it is displayed on Dojos Admin page. If not provided, it will be displayed as 'undefined' on admin page
