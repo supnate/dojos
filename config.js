@@ -1,18 +1,8 @@
 module.exports = {
 	sites: [{
-		id: 'mysite'	//id is the package name of the site
+		id: 'dojos/default'
 		,location: '../'
-		,name: 'My Site'
+		,name: 'Dojos Default'
 		,port: 1337
-	},{
-		id: 'weibo'
-		,location: 'g:/weibo/'
-		,name: 'Weibo'
-		,port: 1338
-	},{
-		id: 'workspace'
-		,location: 'e:/workspace/'
-		,name: 'Workspace'
-		,port: 1339
 	}]
 };
