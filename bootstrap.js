@@ -11,6 +11,10 @@ global.dojoConfig = {
 	,baseUrl: dojoroot
 };
 
+//Auto load dojos in dojo 1.7.x: dojoConfig.deps in NodeJS environment is not respected.
+//It is fixed in the latest dojo 1.8.
+process.argv.push('load=dojos');
+
 global.dojosConfig = require('./config');
 global.dojosConfig.sites.forEach(function(site){
 	if(!site.id)site.id = 'site_' + Math.random().substring(2);
