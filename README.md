@@ -41,8 +41,8 @@ Start up the server by running bootstrap.js:
     node /path/to/dojos/bootstrap.js
 
 ## What does Dojos Provide?
-* Directory list, support orderring and filter functions
-* Static file support
+* Directory list, support fast sorting and filter
+* Static file server
 * Server page rendering engine using dojox/dtl as the template engine
 
 ## Create a page

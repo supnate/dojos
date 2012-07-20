@@ -33,12 +33,12 @@
 </head>
 <body>
 	<h4>Index of {{path|safe}}</h4>
-	<div style="display: inline-block;">
+	<div style="display: inline-block; width: 680px;">
 		<div style="text-align: right;">
 			<span id="filterStatus"></span>
 			<input id="tbFilter" onkeyup="filter(this.value);" placeholder="Filter"/>
 		</div>
-		<table id="grid">
+		<div id="gridContainer"><table>
 			<tr>
 				<th style="min-width: 300px">Name</th>
 				<th style="min-width: 60px">Type</th>
@@ -54,6 +54,7 @@
 			</tr>
 			{% endfor %} 
 		</table>
+		</div>
 	</div>
 	<div class="footer"><hr/>Powered by dojos on NodeJS, Sep, 2011, <a href="https://github.com/supnate/dojos">github.com/supnate/dojos</a> supnate@gmail.com</div>
 </body>
@@ -64,11 +65,13 @@ function $(id){	return document.getElementById(id);}
 function each(arr, callback){	for(var i = 0; i< arr.length; i++)callback(arr[i], i);}
 function clone(arr){	var arr2 = [];each(arr, function(s){arr2.push(s);});return arr2;}
 function stripHtml(s){	return s.replace(/<[^>]*>/g, '');}
+function fixEvent(evt){evt =  evt||event; if(!evt.target)evt.target = evt.srcElement;return evt;};
 
 $('tbFilter').value= '', $('tbFilter').focus();
-var grid = $('grid'), data = [], sortData = {};
+var container = $('gridContainer'), grid = container.firstChild, data = [], sortData = {};
 
-grid.onclick = function(e){
+container.onclick = function(e){
+	e = fixEvent(e);
 	if(/th/i.test(e.target.tagName)){
 		sort(e.target.cellIndex);
 	}
@@ -135,7 +138,7 @@ function filter(){
 }
 function render(gridData){
 	var sb = [];
-	sb.push('<tr>', grid.rows[0].innerHTML, '</tr>');
+	sb.push('<table><tr>', grid.rows[0].innerHTML, '</tr>');
 	each(gridData, function(rowData){
 		sb.push('<tr',(stripHtml(rowData[1]) == 'folder') ? ' class="folder"': '','>');
 		each(rowData, function(cellData, i){
@@ -144,7 +147,9 @@ function render(gridData){
 		sb.push('</tr>');
 	});
 	if(!gridData.length)sb.push('<tr><td colspan="4" style="background:none; padding-left: 5px;">No data.</td></tr>');
-	grid.innerHTML = sb.join('');
+	sb.join('</table>');
+	container.innerHTML = sb.join('');
+	grid = container.firstChild;
 }
 </script>
 
