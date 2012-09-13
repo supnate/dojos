@@ -1,8 +1,8 @@
 module.exports = {
 	sites: [{
-		id: 'dojos/default'
+		id: 'default'
 		,location: '../'
-		,name: 'Dojos Default'
+		,name: 'Default'
 		,port: 1337
 	}]
 };

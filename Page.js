@@ -20,7 +20,6 @@ define([
 			//load page template file
 			this.tpl = fs.readFileSync(_file, 'utf8');
 			if(!this.tpl)this.tpl = '{{text}}';
-			
 			var self = this;
 			if(!this.context && path.existsSync(_file + '.js')){
 				require([mid], function(PageContext){
