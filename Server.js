@@ -1,7 +1,7 @@
 define([
 	'dojo/_base/declare'
 	,'dojo/_base/lang'
-	,'dojo/_base/Url'
+	,'dojo/_base/url'
 	,'dojo/_base/config'
 	,'./Page'
 	,'./UrlRewriter'
