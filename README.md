@@ -3,6 +3,9 @@ This project provides a Dojo based web server running on NodeJS. It uses dojox/d
 
 Although Dojo is known as a powerful rich internet application framework running on browser side, it is also able to run on NodeJS as a server side framework. By doing this, server side javascript could take use of AMD, Dojo's object oriented framework and many fancy Dojo modules. And developers can use one framework for both client side and server side, which is very helpful for development and maintenance of a web site.
 
+## Demo
+You can visit http://supnate.aws.af.cm/ to see the default dojos running on appfog.com.
+
 ## Installation
 Dojos depends on [NodeJS](http://www.nodejs.org) v0.6+ and [Dojo Toolkit](http://www.dojotoolkit.org) v1.7+
 
