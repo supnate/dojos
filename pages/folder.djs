@@ -147,7 +147,7 @@ function render(gridData){
 		sb.push('</tr>');
 	});
 	if(!gridData.length)sb.push('<tr><td colspan="4" style="background:none; padding-left: 5px;">No data.</td></tr>');
-	sb.join('</table>');
+	sb.push('</table>');
 	container.innerHTML = sb.join('');
 	grid = container.firstChild;
 }
