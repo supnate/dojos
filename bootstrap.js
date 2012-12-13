@@ -1,7 +1,6 @@
 var path = require('path');
 var dojosroot = path.dirname(module.filename);
 var dojoroot = path.join(dojosroot, '../dojo');
-
 global.dojoConfig = {
 	packages:[{
 		name: 'dojos'
@@ -17,7 +16,7 @@ process.argv.push('load=dojos');
 
 global.dojosConfig = require('./config');
 global.dojosConfig.sites.forEach(function(site){
-	if(!site.id)site.id = 'site_' + Math.random().substring(2);
+	if(!site.id)site.id = 'site_' + (new Date()).getTime();
 	if(/^\./.test(site.location)){
 		//resolve relative path
 		site.location = path.join(dojosroot, site.location);
