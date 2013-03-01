@@ -36,7 +36,7 @@
 	<div style="display: inline-block; width: 680px;">
 		<div style="text-align: right;">
 			<span id="filterStatus"></span>
-			<input id="tbFilter" onkeyup="filter(this.value);" placeholder="Filter"/>
+			<input id="tbFilter" placeholder="Filter"/>
 		</div>
 		<div id="gridContainer"><table>
 			<tr>
@@ -67,8 +67,27 @@ function clone(arr){	var arr2 = [];each(arr, function(s){arr2.push(s);});return 
 function stripHtml(s){	return s.replace(/<[^>]*>/g, '');}
 function fixEvent(evt){evt =  evt||event; if(!evt.target)evt.target = evt.srcElement;return evt;};
 
-$('tbFilter').value= '', $('tbFilter').focus();
 var container = $('gridContainer'), grid = container.firstChild, data = [], sortData = {};
+
+$('tbFilter').value= '', $('tbFilter').focus();
+$('tbFilter').onkeyup = function(e){
+	e = e || window.event;
+	var target = e.target || e.srcElement;
+	if(e.keyCode == 13){
+		//press enter
+		if(!target.value)return;
+		if(/^\.\./.test(target.value) && document.location.pathname != '/'){
+			history.back();
+			return;
+		}
+		var a = grid.rows[1].cells[0].firstChild;
+		if(a && a.href)document.location = a.href;
+		
+	}else{
+		filter(target);
+	}
+}
+
 
 container.onclick = function(e){
 	e = fixEvent(e);
@@ -117,6 +136,7 @@ function sort(col){
 }
 function filter(){
 	var s = $('tbFilter').value;
+	if(/^\.\./.test(s))s = '';
 	if(!s){
 		render(data);
 		$('filterStatus').innerHTML = '';
@@ -124,7 +144,7 @@ function filter(){
 		var arr = [];
 		each(data, function(item){
 			item = clone(item);
-			var rex = new RegExp('(' + s + ')', 'ig');
+			var rex = new RegExp('(' + s.replace(/\./g, '\\.') + ')', 'ig');
 			if(rex.test(stripHtml(item.join(','))))arr.push(item);
 			each(item, function(c, i){//highlight search key
 				item[i] = stripHtml(c).replace(rex, '<span class="highlight">$1</span>');
